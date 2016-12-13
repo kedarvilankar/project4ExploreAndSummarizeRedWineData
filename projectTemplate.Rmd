@@ -110,21 +110,26 @@ ggplot(data=wqr,aes(x=quality))+
   geom_histogram(bins=6,breaks=c(3,4,5,6,7,8))
 summary(wqr$quality)
 table(wqr$quality)
+wqr$quality.bucket <- cut(wqr$quality,breaks = c(0,4,6,10))
 ```
 Most of the wines have quality rating of 5 and 6. The highset possible rating is 10 but none of the wines in the dataset have got full rating. 18 of the wines have got quality rating of 8 (maximum rating in the dataset). It would e interesting to see what all objective measures relate with these ratings.
 
 # Univariate Analysis
 
 ### What is the structure of your dataset?
+There are 1599 wines in the dataset with 12 attributes. 11 of the attributes are objective measures and one attribute is subjective quality rating.
 
 ### What is/are the main feature(s) of interest in your dataset?
+I think the main features are volatile acidity, residual sugar, and alcohol content. I suspect these features will have either positive or negative correlations with quality ratings.
 
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+I think pH and total sulfur dioxide might also influence the subjective quality ratings.
 
 ### Did you create any new variables from existing variables in the dataset?
+I did not make any new variable. As all the variales were on continous scale and most of them were normally distributed. If any of the variables had uniform distribution I would have made that variable into a categorical variable using cut function. However, for the given dataset I did not feel any need of it.
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
-
+I found distriution of Chlorides as unusual. It has normal distriution, but with a very long tail. To make the plot look tidy, I limited x coordinate to have max value of 95% qualtile of choloride quantity. Similarly, free the distribution of free sulphur dioxide and total sulfur dioxide seemed skewed with long tails. I transformed x using log10 transformation. The resulting plot looks more normal now.
 
 
 # Bivariate Plots Section
