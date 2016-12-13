@@ -10,6 +10,7 @@ TITLE by YOUR_NAME_HERE
 # You should set echo=FALSE for all code chunks in your file.
 
 library(ggplot2)
+library(gridExtra)
 ```
 
 ```{r echo=FALSE, Load_the_Data}
@@ -22,42 +23,95 @@ The red wine quality datasetcontains 1599 obeservations with 12 attributes. 11 o
 
 # Univariate Plots Section
 ```{r echo=FALSE, Univariate_Plots}
-ggplot(data=wqr,aes(x=fixed.acidity))+
-  geom_histogram(bins=40)
-
-ggplot(data=wqr,aes(x=volatile.acidity))+
+g1<-ggplot(data=wqr,aes(x=fixed.acidity))+
   geom_histogram(bins=45)
 
-ggplot(data=wqr,aes(x=citric.acid))+
-  geom_histogram(bins=100)
+g2<-ggplot(data=wqr,aes(x=volatile.acidity))+
+  geom_histogram(bins=45)
 
+g3<-ggplot(data=wqr,aes(x=citric.acid))+
+  geom_histogram(bins=20)
+
+grid.arrange(g1,g2,g3,ncol=3)
+
+summary(wqr$fixed.acidity)
+summary(wqr$volatile.acidity)
+summary(wqr$citric.acid)
+
+```
+Fixed.acidity and volatile.acidity have roughly normal distributions. Amount of volatile.acidity is very low with a mean of 0.53 g/dm^3. The citric acid is also found in small quantitis in red wines with a mean if 0.27 g/dm^3.
+
+```{r}
 ggplot(data=wqr,aes(x=residual.sugar))+
   geom_histogram(bins=50)
 
-ggplot(data=wqr,aes(x=chlorides))+
+summary(wqr$residual.sugar)
+
+nrow(subset(wqr,residual.sugar<1))
+```
+The amount of residual sugar is small with a mean of 2.5 g/litre. According to dataset descitiption a wine with more than 45 g/litre of residual sugar is considered sweet wine. However in the given dataset the maximum residual sugar is 15.5 g/litre. The descripion also notes that a wine less than 1 g/litre residual sugar is rare. In the given dataset there are two wines with less than 1 g/litre residual sugar. I personally like sweet wines. I am curious if it has any relationship with quality of a wine.
+
+```{r}
+g1<-ggplot(data=wqr,aes(x=chlorides))+
   geom_histogram(bins=40)
 
-ggplot(data=wqr,aes(x=free.sulfur.dioxide))+
+g2<-ggplot(data=wqr,aes(x=chlorides))+
+  geom_histogram(bins=100)+
+  coord_cartesian(xlim = c(0.012,quantile(wqr$chlorides,0.95)))
+
+grid.arrange(g1,g2,ncol=2)
+
+summary(wqr$chlorides)
+```
+The attribute chloride represents amount of salt in a wine. Most of the wines have small amount of salt less than 0.2. To see proper distribution of amount of salt in most of the wines, we put a limit on x-axis to show maximum salt amount at 95% quatile (Please refer to above second plot). 
+
+```{r}
+g1<-ggplot(data=wqr,aes(x=free.sulfur.dioxide))+
   geom_histogram(bins=40)
 
-ggplot(data=wqr,aes(x=total.sulfur.dioxide))+
+g2<-ggplot(data=wqr,aes(x=total.sulfur.dioxide))+
   geom_histogram(bins=40)
 
-ggplot(data=wqr,aes(x=density))+
-  geom_histogram(bins=40)
 
-ggplot(data=wqr,aes(x=pH))+
-  geom_histogram(bins=40)
+g3<-ggplot(data=wqr,aes(x=free.sulfur.dioxide))+
+  geom_histogram(bins=30)+
+  scale_x_log10()
 
-ggplot(data=wqr,aes(x=sulphates))+
-  geom_histogram(bins=40)
+g4<-ggplot(data=wqr,aes(x=total.sulfur.dioxide))+
+  geom_histogram(bins=30)+
+  scale_x_log10()
 
+grid.arrange(g1,g2,g3,g4,ncol=2)
+```
+The above plot show amount of free and total sulphur dioxide in wines. From the top row of the above plot we see that distribution of amount is skewed with long tails. The bottom row of the plot show when the amount is log transformed.
+
+```{r}
+g1<-ggplot(data=wqr,aes(x=density))+
+  geom_histogram(bins=30)
+
+g2<-ggplot(data=wqr,aes(x=pH))+
+  geom_histogram(bins=30)
+
+grid.arrange(g1,g2,ncol=2)
+```
+The above plot shows distribution of density and pH level of wines. The density for most of the wines is little less than 1 which is the density of water. Also, most of the wines are in the 3 and 3.7 which is acidic.
+
+
+```{r}
 ggplot(data=wqr,aes(x=alcohol))+
   geom_histogram(bins=40)
 
-ggplot(data=wqr,aes(x=quality))+
-  geom_histogram(bins=40)
+summary(wqr$alcohol)
 ```
+The mean percent of alcohol is 10.42%. 75% of wines have alcohol content less than 11.1%. It would be interesting to see if Alcohol content has any correlation with the quality of a wine.
+
+```{r}
+ggplot(data=wqr,aes(x=quality))+
+  geom_histogram(bins=6,breaks=c(3,4,5,6,7,8))
+summary(wqr$quality)
+table(wqr$quality)
+```
+Most of the wines have quality rating of 5 and 6. The highset possible rating is 10 but none of the wines in the dataset have got full rating. 18 of the wines have got quality rating of 8 (maximum rating in the dataset). It would e interesting to see what all objective measures relate with these ratings.
 
 # Univariate Analysis
 
