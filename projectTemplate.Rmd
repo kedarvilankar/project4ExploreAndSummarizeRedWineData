@@ -110,7 +110,7 @@ ggplot(data=wqr,aes(x=quality))+
   geom_histogram(bins=6,breaks=c(3,4,5,6,7,8))
 summary(wqr$quality)
 table(wqr$quality)
-wqr$quality.bucket <- cut(wqr$quality,breaks = c(0,4,6,10))
+#wqr$quality.bucket <- cut(wqr$quality,breaks = c(0,4,6,10))
 ```
 Most of the wines have quality rating of 5 and 6. The highset possible rating is 10 but none of the wines in the dataset have got full rating. 18 of the wines have got quality rating of 8 (maximum rating in the dataset). It would e interesting to see what all objective measures relate with these ratings.
 
@@ -134,23 +134,85 @@ I found distriution of Chlorides as unusual. It has normal distriution, but with
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
+library(GGally)
+wqr<-wqr[,2:ncol(wqr)]
+```
+```{r}
+ggpairs(wqr, 
+  lower = list(continuous = wrap("points", shape = I('.'))), 
+  upper = list(combo = wrap("box", outlier.shape = I('.'))))
+```
+From the above plots we do not see that Quality has strong correlations with any of the other attributes. The quality rating has best positive correlation of 0.48 with alcohol content and best negative correlation of -0.39 with volatile.acidity. Lets take a close look at these correlations.
 
+```{r}
+ggplot(data = wqr,aes(alcohol,quality))+
+  geom_point()
 ```
 
+```{r}
+ggplot(data = wqr,aes(alcohol,quality))+
+  geom_jitter()+
+  geom_smooth(method = 'lm')
+```
+And indeed the scatter plot shows a weak positive correlation between the quality and the alchol content.
+
+```{r}
+ggplot(data = wqr,aes(volatile.acidity,quality))+
+  geom_point()
+```
+```{r}
+ggplot(data = wqr,aes(volatile.acidity,quality))+
+  geom_jitter()+
+  geom_smooth(method = 'lm')
+```
+ This plot shows that as the content of volatile acidity increases the quality reating decreases and hence has a negative correlation.
+
+```{r}
+ggplot(data = wqr,aes(residual.sugar,quality))+
+  geom_jitter()+
+  geom_smooth(method = 'lm')
+
+cor.test(wqr$residual.sugar,wqr$quality)
+```
+I suspected that the residual sugar will be a good predictor of quality. However, the plot suggests that there is no relationship between the amount of residual sugar and the quality of a wine.
+
+```{r}
+g1<-ggplot(data = wqr,aes(fixed.acidity,citric.acid))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+g2<-ggplot(data = wqr,aes(fixed.acidity,density))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+g3<-ggplot(data = wqr,aes(fixed.acidity,pH))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+g4<-ggplot(data = wqr,aes(free.sulfur.dioxide,total.sulfur.dioxide))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+grid.arrange(g1,g2,g3,g4,ncol=4)
+```
+The above plot shows some of the strong relationships between other attributes. 
 # Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+I suspected that volatile acidity, residual sugar, and alcohol content will be a strong predictor of quality. However, looking at the scatter plot we do not see any strong relationships. The best positive correlation of qiuality is of 0.48 with alcholo content. In the description of the attributes, it was mentioned that high levels of volatile acidity can lead to an unpleasent taste. Indeed the scatter plot revealed a negative correlation of -0.39. The amount of residual sugar did not show any relationship with the quality rating. I might be biased by my personal preferences of sweet red wines. 
 
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+Yes I found other strong correlations between fixed acidity and citric acid, fixed acidity and density, fixed acidity and pH, and free sulphur dioxide and total sulphur dioxide. Most of these makes sense but I did not understand why acidity is correlated with density. 
 
 ### What was the strongest relationship you found?
-
+The strogest relationship (correlation=-0.68) was between free acidity and pH value. This was expected because pH  value is used to measure acidity of any aqueous solution.
 
 
 
 # Multivariate Plots Section
 
 ```{r echo=FALSE, Multivariate_Plots}
+library(RColorBrewer)
+ggplot(data = wqr,aes(alcohol,quality))+
+  geom_jitter(aes(color=factor(volatile.acidity)))+
+  geom_smooth(method = 'lm')+
+  scale_color_brewer(type = 'div')
 
 ```
 
