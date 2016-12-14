@@ -107,7 +107,7 @@ The mean percent of alcohol is 10.42%. 75% of wines have alcohol content less th
 
 ```{r}
 ggplot(data=wqr,aes(x=quality))+
-  geom_histogram(bins=6,breaks=c(3,4,5,6,7,8))
+  geom_bar(bins=6,breaks=c(3,4,5,6,7,8))
 summary(wqr$quality)
 table(wqr$quality)
 #wqr$quality.bucket <- cut(wqr$quality,breaks = c(0,4,6,10))
@@ -150,9 +150,14 @@ ggplot(data = wqr,aes(alcohol,quality))+
 ```
 
 ```{r}
-ggplot(data = wqr,aes(alcohol,quality))+
+g1<-ggplot(data = wqr,aes(alcohol,quality))+
   geom_jitter()+
   geom_smooth(method = 'lm')
+  
+g2<-ggplot(data = wqr,aes(quality,alcohol))+
+  geom_line(stat = 'summary', fun.y=median,size=1)
+grid.arrange(g1,g2,ncol=2)
+  
 ```
 And indeed the scatter plot shows a weak positive correlation between the quality and the alchol content.
 
@@ -161,16 +166,23 @@ ggplot(data = wqr,aes(volatile.acidity,quality))+
   geom_point()
 ```
 ```{r}
-ggplot(data = wqr,aes(volatile.acidity,quality))+
+g1<-ggplot(data = wqr,aes(volatile.acidity,quality))+
   geom_jitter()+
   geom_smooth(method = 'lm')
+g2<-ggplot(data = wqr,aes(quality,volatile.acidity))+
+  geom_line(stat = 'summary', fun.y=median,size=1)
+grid.arrange(g1,g2,ncol=2)
 ```
  This plot shows that as the content of volatile acidity increases the quality reating decreases and hence has a negative correlation.
 
 ```{r}
-ggplot(data = wqr,aes(residual.sugar,quality))+
+g1<-ggplot(data = wqr,aes(residual.sugar,quality))+
   geom_jitter()+
   geom_smooth(method = 'lm')
+
+g2<-ggplot(data = wqr,aes(quality,residual.sugar))+
+  geom_line(stat = 'summary', fun.y=median,size=1)
+grid.arrange(g1,g2,ncol=2)
 
 cor.test(wqr$residual.sugar,wqr$quality)
 ```
@@ -209,28 +221,55 @@ The strogest relationship (correlation=-0.68) was between free acidity and pH va
 
 ```{r echo=FALSE, Multivariate_Plots}
 library(RColorBrewer)
-ggplot(data = wqr,aes(alcohol,quality))+
-  geom_jitter(aes(color=factor(volatile.acidity)))+
+theme_set(theme_classic(20))
+ggplot(data = wqr,aes(alcohol,volatile.acidity))+
+  geom_jitter(aes(color=factor(quality)))+
   geom_smooth(method = 'lm')+
-  scale_color_brewer(type = 'div')
-
+  scale_color_brewer(type = 'qual')
 ```
+This plot clearly shows that wines with low alcohol content and high volitile acidit are rated low (shown in green points). 
+
+```{r echo=FALSE}
+theme_set(theme_classic(20))
+ggplot(data = wqr,aes(citric.acid,residual.sugar))+
+  geom_jitter(aes(color=factor(quality)),alpha=0.5)+
+  facet_wrap(~factor(quality))+
+  scale_color_brewer(type = 'qual')
+```
+In this plot also we do not see any strong combined effect of residual.sugar and citric.acid in the quality ratings.
+
+```{r Building the Linear Model}
+library(memisc)
+m1 <- lm(quality ~ alcohol, data = wqr)
+m2 <- update(m1, ~ . + volatile.acidity)
+m3 <- update(m2, ~ . + sulphates)
+m4 <- update(m3, ~ . + citric.acid)
+m5 <- update(m4, ~ . + total.sulfur.dioxide)
+mtable(m1, m2, m3, m4, m5)
+summary(m5)
+```
+The attributes included in the linear model (alcohol, volatile.acidity, sulphates, citric.acid, total.sulfur.dioxide) can account for only 34% of the variance in the quality ratings.
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+We did not find any pairs of attributes which together were a good predictor of quality. In the second plot above (residual.sugar vs Citric.acid) we see that wines of wines with same quality ratings are all over the plot regions, indicating no strong relationships. Except for wines with quality rating of 3 have small amount of citric.acis, but there also exists many highly rated wines with low citric.acid.
 
 ### Were there any interesting or surprising interactions between features?
+Even though individual attributes do not have strong relationships with quality, I expected that together they would be good predictor of the quality. However, non of the multivariate plot showed any indication improvement with combinations of attriutes. 
 
 ### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
-
+Yes, I made five linear models to predict the quality ratings. However, the maximum variance the best model could predict is 34%. I think either some other objective measures are also required or there is complex non-linear relationship in high-dimensions between quality and the objective attriutes which are not apparent in scatter plots.
 ------
 
 # Final Plots and Summary
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-
+ggplot(data=wqr,aes(x=quality))+
+  geom_bar()+
+  ylab('Number of red wines')+
+  ggtitle('Quyality ratings of wine')
 ```
 
 ### Description One
@@ -238,7 +277,19 @@ ggplot(data = wqr,aes(alcohol,quality))+
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-
+g1<-ggplot(data = wqr,aes(alcohol,quality))+
+  geom_jitter()+
+  geom_smooth(method = 'lm')+
+  ggtitle('Quality Vs. Alcohol')+
+  ylab('Quality')+
+  xlab('Alcohol (% by volume)')
+  
+g2<-ggplot(data = wqr,aes(quality,alcohol))+
+  geom_line(stat = 'summary', fun.y=median,size=2, color='red')+
+  ggtitle('Median alchol content')+
+  xlab('Quality')+
+  ylab('Alcohol (% by volume)')
+grid.arrange(g1,g2,ncol=2)
 ```
 
 ### Description Two
@@ -246,7 +297,19 @@ ggplot(data = wqr,aes(alcohol,quality))+
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
+g1<-ggplot(data = wqr,aes(volatile.acidity,quality))+
+  geom_jitter()+
+  geom_smooth(method = 'lm')+
+  ggtitle('Quality Vs. Volatile Acidity')+
+  ylab('Quality')+
+  xlab('Volatile Acidity (g/dm^3)')
 
+g2<-ggplot(data = wqr,aes(quality,volatile.acidity))+
+  geom_line(stat = 'summary', fun.y=median,,size=2, color='red')+
+  ggtitle('Median Volatile Acidity content')+
+  xlab('Quality')+
+  ylab('Volatile Acidity (g/dm^3)')
+grid.arrange(g1,g2,ncol=2)
 ```
 
 ### Description Three
