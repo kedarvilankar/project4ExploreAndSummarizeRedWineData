@@ -162,7 +162,7 @@ library(corrplot)
 
 ```{r}
 r<-cor(wqr)
-corrplot(r, method="number", type="lower", number.font=1, tl.cex = 0.5)
+corrplot(r, method="number", type="lower", number.font=1, tl.cex = 1)
 ```
 
 From the above plots, we do not see that Quality has strong correlations with any of the other attributes. The quality rating has a best positive correlation of 0.48 with alcohol content and best negative correlation of -0.39 with volatile.acidity. Let's take a close look at these relationships.
