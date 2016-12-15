@@ -1,4 +1,4 @@
-TITLE by YOUR_NAME_HERE
+Wine Quality Exploration by Kedarnath Vilankar
 ========================================================
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
@@ -16,10 +16,11 @@ library(gridExtra)
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
 wqr<-read.csv('wineQualityReds.csv')
+wqr<-wqr[,2:ncol(wqr)]
 c(nrow(wqr), ncol(wqr))
 summary(wqr)
 ```
-The red wine quality datasetcontains 1599 obeservations with 12 attributes. 11 of the attributes are objective measures of a red wine and 1 attribute is median subjective rating by wine experts. 
+This report explores the red wine quality dataset. The red wine quality dataset contains 1599 observations with 12 attributes. 11 of the attributes are objective measures of red wine, and one attribute is median subjective rating by wine experts.Based on the objective measures linear models will be created to predict the subjective rating.
 
 # Univariate Plots Section
 ```{r echo=FALSE, Univariate_Plots}
@@ -39,9 +40,9 @@ summary(wqr$volatile.acidity)
 summary(wqr$citric.acid)
 
 ```
-Fixed.acidity and volatile.acidity have roughly normal distributions. Amount of volatile.acidity is very low with a mean of 0.53 g/dm^3. The citric acid is also found in small quantitis in red wines with a mean if 0.27 g/dm^3.
+Fixed.acidity and volatile.acidity have roughly normal distributions. The amount of volatile.acidity is very low with a mean of 0.53 g/dm^3. The citric acid is also found in small quantities in red wines with an average of 0.27 g/dm^3.
 
-```{r}
+```{r echo=FALSE}
 ggplot(data=wqr,aes(x=residual.sugar))+
   geom_histogram(bins=50)
 
@@ -49,9 +50,9 @@ summary(wqr$residual.sugar)
 
 nrow(subset(wqr,residual.sugar<1))
 ```
-The amount of residual sugar is small with a mean of 2.5 g/litre. According to dataset descitiption a wine with more than 45 g/litre of residual sugar is considered sweet wine. However in the given dataset the maximum residual sugar is 15.5 g/litre. The descripion also notes that a wine less than 1 g/litre residual sugar is rare. In the given dataset there are two wines with less than 1 g/litre residual sugar. I personally like sweet wines. I am curious if it has any relationship with quality of a wine.
+The amount of residual sugar is low with a mean of 2.5 g/litre. According to dataset description, wine with more than 45 g/litre of residual sugar is considered a sweet wine. However, in the given dataset the maximum residual sugar is 15.5 g/litre. The description also notes that wine less than 1 g/litre residual sugar is rare. In the given dataset there are two wines with less than 1 g/litre residual sugar. I personally like sweet wines. I am curious if it has any relationship with quality of wine.
 
-```{r}
+```{r echo=FALSE}
 g1<-ggplot(data=wqr,aes(x=chlorides))+
   geom_histogram(bins=40)
 
@@ -63,9 +64,9 @@ grid.arrange(g1,g2,ncol=2)
 
 summary(wqr$chlorides)
 ```
-The attribute chloride represents amount of salt in a wine. Most of the wines have small amount of salt less than 0.2. To see proper distribution of amount of salt in most of the wines, we put a limit on x-axis to show maximum salt amount at 95% quatile (Please refer to above second plot). 
+The attribute chloride represents the amount of salt in wine. Most of the wines have a small amount of salt less than 0.2. To see the proper distribution of the amount of salt in most of the wines, we put a limit on the x-axis to show maximum salt amount at 95% quartile (Please refer to above the right hand side plot).
 
-```{r}
+```{r echo=FALSE}
 g1<-ggplot(data=wqr,aes(x=free.sulfur.dioxide))+
   geom_histogram(bins=40)
 
@@ -83,9 +84,10 @@ g4<-ggplot(data=wqr,aes(x=total.sulfur.dioxide))+
 
 grid.arrange(g1,g2,g3,g4,ncol=2)
 ```
-The above plot show amount of free and total sulphur dioxide in wines. From the top row of the above plot we see that distribution of amount is skewed with long tails. The bottom row of the plot show when the amount is log transformed.
 
-```{r}
+The above plot shows the amount of free and total sulphur dioxide in wines. From the top row of the above plot, we see that distribution of amount is skewed with long tails. The bottom row of the plot shows when the amount is log transformed.
+
+```{r echo=FALSE}
 g1<-ggplot(data=wqr,aes(x=density))+
   geom_histogram(bins=30)
 
@@ -94,62 +96,65 @@ g2<-ggplot(data=wqr,aes(x=pH))+
 
 grid.arrange(g1,g2,ncol=2)
 ```
-The above plot shows distribution of density and pH level of wines. The density for most of the wines is little less than 1 which is the density of water. Also, most of the wines are in the 3 and 3.7 which is acidic.
+
+The above plot shows the distribution of density and pH level of wines. The density for most of the wines is little less than one, which is the density of water. Also, most of the wines are in the range of 3 and 3.7, which is acidic.
 
 
-```{r}
+```{r echo=FALSE}
 ggplot(data=wqr,aes(x=alcohol))+
   geom_histogram(bins=40)
 
 summary(wqr$alcohol)
 ```
-The mean percent of alcohol is 10.42%. 75% of wines have alcohol content less than 11.1%. It would be interesting to see if Alcohol content has any correlation with the quality of a wine.
 
-```{r}
+The mean percent of alcohol content is 10.42%. 75% of wines have alcohol content less than 11.1%. It would be interesting to see if Alcohol content has any correlation with the quality of wine.
+
+```{r echo=FALSE}
 ggplot(data=wqr,aes(x=quality))+
-  geom_bar(bins=6,breaks=c(3,4,5,6,7,8))
+  geom_bar()
 summary(wqr$quality)
 table(wqr$quality)
 #wqr$quality.bucket <- cut(wqr$quality,breaks = c(0,4,6,10))
 ```
-Most of the wines have quality rating of 5 and 6. The highset possible rating is 10 but none of the wines in the dataset have got full rating. 18 of the wines have got quality rating of 8 (maximum rating in the dataset). It would e interesting to see what all objective measures relate with these ratings.
+
+Most of the wines have a quality rating of 5 and 6. The highest possible rating is ten, but none of the wines in the dataset has got full rating. 18 of the wines have got a quality rating of 8 (maximum rating in the dataset). It would be interesting to see what all objective measures relate with these ratings.
 
 # Univariate Analysis
 
 ### What is the structure of your dataset?
-There are 1599 wines in the dataset with 12 attributes. 11 of the attributes are objective measures and one attribute is subjective quality rating.
+There are 1599 wines in the dataset with 12 attributes. 11 of the attributes are objective measures, and one attribute is subjective quality rating.
 
 ### What is/are the main feature(s) of interest in your dataset?
-I think the main features are volatile acidity, residual sugar, and alcohol content. I suspect these features will have either positive or negative correlations with quality ratings.
+I think the main features are volatile acidity, residual sugar, and alcohol content. I suspect these features will have either positive or negative correlation with quality ratings.
 
 ### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
-I think pH and total sulfur dioxide might also influence the subjective quality ratings.
+I think pH and total sulphur dioxide might also influence the subjective quality ratings.
 
 ### Did you create any new variables from existing variables in the dataset?
-I did not make any new variable. As all the variales were on continous scale and most of them were normally distributed. If any of the variables had uniform distribution I would have made that variable into a categorical variable using cut function. However, for the given dataset I did not feel any need of it.
+I did not make any new variable. As all the variables were on the continuous scale and most of them were normally distributed. If any of the variables had uniform distribution, I would have made that variable into a categorical variable using the cut function. However, for the given dataset I did not feel any need of it.
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
-I found distriution of Chlorides as unusual. It has normal distriution, but with a very long tail. To make the plot look tidy, I limited x coordinate to have max value of 95% qualtile of choloride quantity. Similarly, free the distribution of free sulphur dioxide and total sulfur dioxide seemed skewed with long tails. I transformed x using log10 transformation. The resulting plot looks more normal now.
+I found the distribution of Chlorides as unusual. It has a normal distribution, but with a very long tail. To make the plot look tidy, I limited x coordinate to have a max value of 95% quartile of chloride quantity. Similarly, the distribution of free sulphur dioxide and total sulphur dioxide seemed skewed with long tails. I transformed x using log10 transformation. The resulting plot looks more normal now.
 
 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
 library(GGally)
-wqr<-wqr[,2:ncol(wqr)]
 ```
-```{r}
+```{r echo=FALSE}
 ggpairs(wqr, 
   lower = list(continuous = wrap("points", shape = I('.'))), 
   upper = list(combo = wrap("box", outlier.shape = I('.'))))
 ```
-From the above plots we do not see that Quality has strong correlations with any of the other attributes. The quality rating has best positive correlation of 0.48 with alcohol content and best negative correlation of -0.39 with volatile.acidity. Lets take a close look at these correlations.
 
-```{r}
+From the above plots, we do not see that Quality has strong correlations with any of the other attributes. The quality rating has a best positive correlation of 0.48 with alcohol content and best negative correlation of -0.39 with volatile.acidity. Let's take a close look at these relationships.
+
+```{r echo=FALSE}
 ggplot(data = wqr,aes(alcohol,quality))+
   geom_point()
 ```
 
-```{r}
+```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(alcohol,quality))+
   geom_jitter()+
   geom_smooth(method = 'lm')
@@ -159,13 +164,14 @@ g2<-ggplot(data = wqr,aes(quality,alcohol))+
 grid.arrange(g1,g2,ncol=2)
   
 ```
-And indeed the scatter plot shows a weak positive correlation between the quality and the alchol content.
 
-```{r}
+And indeed the scatter plot shows a weak positive correlation between the quality and the alcohol content.
+
+```{r echo=FALSE}
 ggplot(data = wqr,aes(volatile.acidity,quality))+
   geom_point()
 ```
-```{r}
+```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(volatile.acidity,quality))+
   geom_jitter()+
   geom_smooth(method = 'lm')
@@ -173,9 +179,10 @@ g2<-ggplot(data = wqr,aes(quality,volatile.acidity))+
   geom_line(stat = 'summary', fun.y=median,size=1)
 grid.arrange(g1,g2,ncol=2)
 ```
- This plot shows that as the content of volatile acidity increases the quality reating decreases and hence has a negative correlation.
 
-```{r}
+This plot indicates that as the content of volatile acidity increases the quality rating decreases and hence has a negative correlation.
+
+```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(residual.sugar,quality))+
   geom_jitter()+
   geom_smooth(method = 'lm')
@@ -186,9 +193,10 @@ grid.arrange(g1,g2,ncol=2)
 
 cor.test(wqr$residual.sugar,wqr$quality)
 ```
-I suspected that the residual sugar will be a good predictor of quality. However, the plot suggests that there is no relationship between the amount of residual sugar and the quality of a wine.
 
-```{r}
+I suspected that the residual sugar would be a good predictor of quality. However, the plot suggests that there is no relationship between the amount of residual sugar and the quality of wine.
+
+```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(fixed.acidity,citric.acid))+
   geom_point()+
   geom_smooth(method = 'lm')
@@ -203,17 +211,20 @@ g4<-ggplot(data = wqr,aes(free.sulfur.dioxide,total.sulfur.dioxide))+
   geom_smooth(method = 'lm')
 grid.arrange(g1,g2,g3,g4,ncol=4)
 ```
+
 The above plot shows some of the strong relationships between other attributes. 
+
+
 # Bivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
-I suspected that volatile acidity, residual sugar, and alcohol content will be a strong predictor of quality. However, looking at the scatter plot we do not see any strong relationships. The best positive correlation of qiuality is of 0.48 with alcholo content. In the description of the attributes, it was mentioned that high levels of volatile acidity can lead to an unpleasent taste. Indeed the scatter plot revealed a negative correlation of -0.39. The amount of residual sugar did not show any relationship with the quality rating. I might be biased by my personal preferences of sweet red wines. 
+I suspected that volatile acidity, residual sugar, and alcohol content would be a strong predictor of quality. However, looking at the scatter plot, we do not see any strong relationships. The best positive correlation is of 0.48 between quality rating and alcohol content. In the description of the attributes, it is mentioned that high levels of volatile acidity could lead to an unpleasant taste. Indeed the scatter plot revealed a negative correlation of -0.39. The amount of residual sugar did not show any relationship with the quality rating. I might be biased by my personal preferences of sweet red wines, may be wine experts do not like sweet wines. Also according to the dataset description, wines with residual sugar above 45 grams/liter are considered sweet, but none of the wines in the dataset has this much amount of residual sugar.
 
 ### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
-Yes I found other strong correlations between fixed acidity and citric acid, fixed acidity and density, fixed acidity and pH, and free sulphur dioxide and total sulphur dioxide. Most of these makes sense but I did not understand why acidity is correlated with density. 
+Yes, I found other strong correlations between fixed acidity and citric acid, fixed acidity and density, fixed acidity and pH, and free sulphur dioxide and total sulphur dioxide. Most of these make sense, but I did not understand why acidity is correlated with density. 
 
 ### What was the strongest relationship you found?
-The strogest relationship (correlation=-0.68) was between free acidity and pH value. This was expected because pH  value is used to measure acidity of any aqueous solution.
+The strongest relationship (correlation=-0.68) was between free acidity and pH value. This was expected because the pH value is used to measure the acidity of any aqueous solution.
 
 
 
@@ -227,7 +238,8 @@ ggplot(data = wqr,aes(alcohol,volatile.acidity))+
   geom_smooth(method = 'lm')+
   scale_color_brewer(type = 'qual')
 ```
-This plot clearly shows that wines with low alcohol content and high volitile acidit are rated low (shown in green points). 
+
+This plot clearly shows that wines with low alcohol content and high volatile acidity are rated low (shown in green points).
 
 ```{r echo=FALSE}
 theme_set(theme_classic(20))
@@ -236,10 +248,11 @@ ggplot(data = wqr,aes(citric.acid,residual.sugar))+
   facet_wrap(~factor(quality))+
   scale_color_brewer(type = 'qual')
 ```
+
 In this plot also we do not see any strong combined effect of residual.sugar and citric.acid in the quality ratings.
 
-```{r Building the Linear Model}
-library(memisc)
+```{r echo=FALSE, Building_the_Linear_Model}
+suppressWarnings(suppressMessages(library(memisc)))
 m1 <- lm(quality ~ alcohol, data = wqr)
 m2 <- update(m1, ~ . + volatile.acidity)
 m3 <- update(m2, ~ . + sulphates)
@@ -248,18 +261,21 @@ m5 <- update(m4, ~ . + total.sulfur.dioxide)
 mtable(m1, m2, m3, m4, m5)
 summary(m5)
 ```
+
 The attributes included in the linear model (alcohol, volatile.acidity, sulphates, citric.acid, total.sulfur.dioxide) can account for only 34% of the variance in the quality ratings.
 
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
-We did not find any pairs of attributes which together were a good predictor of quality. In the second plot above (residual.sugar vs Citric.acid) we see that wines of wines with same quality ratings are all over the plot regions, indicating no strong relationships. Except for wines with quality rating of 3 have small amount of citric.acis, but there also exists many highly rated wines with low citric.acid.
+We did not find any pairs of attributes which together were a good predictor of quality. In the plot above (residual.sugar vs. Citric.acid), we see that wines with same quality ratings are all over the plot regions, indicating no strong relationships. Except for wines with a quality rating of 3 have a small amount of citric acid, but there also exists many highly rated wines (6 and above) which has low citric.acid.
 
 ### Were there any interesting or surprising interactions between features?
-Even though individual attributes do not have strong relationships with quality, I expected that together they would be good predictor of the quality. However, non of the multivariate plot showed any indication improvement with combinations of attriutes. 
+Even though individual attributes do not have strong relationships with quality, I expected that together they would be a good predictor of the quality. However, none of the multivariate plots showed any improvement with combinations of attributes.  
 
 ### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
-Yes, I made five linear models to predict the quality ratings. However, the maximum variance the best model could predict is 34%. I think either some other objective measures are also required or there is complex non-linear relationship in high-dimensions between quality and the objective attriutes which are not apparent in scatter plots.
+Yes, I made five linear models to predict the quality ratings. However, the the best model could only predict is 34% of variance. I think, either more objective measures are required, or there is a complex non-linear relationship in high-dimensions between quality and the objective attributes which are not apparent in scatter plots.
+
+
 ------
 
 # Final Plots and Summary
@@ -273,7 +289,7 @@ ggplot(data=wqr,aes(x=quality))+
 ```
 
 ### Description One
-
+The distribution of quality ratings of red wines. This distribution is fairly normal with most of the wines rated 5 and 6. The possible lowest rating was 0, and the highest rating was 10. However, none of the wines in the dataset achieved a rating of 9 and above.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
@@ -282,18 +298,22 @@ g1<-ggplot(data = wqr,aes(alcohol,quality))+
   geom_smooth(method = 'lm')+
   ggtitle('Quality Vs. Alcohol')+
   ylab('Quality')+
-  xlab('Alcohol (% by volume)')
+  xlab('Alcohol (% by volume)')+
+  theme(axis.text=element_text(size=10),
+        plot.title=element_text(size=12,face="bold"))
   
 g2<-ggplot(data = wqr,aes(quality,alcohol))+
   geom_line(stat = 'summary', fun.y=median,size=2, color='red')+
   ggtitle('Median alchol content')+
   xlab('Quality')+
-  ylab('Alcohol (% by volume)')
+  ylab('Alcohol (% by volume)')+
+  theme(axis.text=element_text(size=10),
+        plot.title=element_text(size=12,face="bold"))
 grid.arrange(g1,g2,ncol=2)
 ```
 
 ### Description Two
-
+The left side plot above is scattered plot of the quality rating and the alcohol content of the wines. We see there is a weak positive correlation between the two attributes. The weak linear trend is shown using the blue line in the plot. The right side plot above shows the median alcohol content in wines at each quality rating. Again this plot shows there is some relationship between the quality and the alcohol content.
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
@@ -302,18 +322,31 @@ g1<-ggplot(data = wqr,aes(volatile.acidity,quality))+
   geom_smooth(method = 'lm')+
   ggtitle('Quality Vs. Volatile Acidity')+
   ylab('Quality')+
-  xlab('Volatile Acidity (g/dm^3)')
+  xlab('Volatile Acidity (g/dm^3)')+
+  theme(axis.text=element_text(size=10),
+        plot.title=element_text(size=12,face="bold"))
 
 g2<-ggplot(data = wqr,aes(quality,volatile.acidity))+
   geom_line(stat = 'summary', fun.y=median,,size=2, color='red')+
   ggtitle('Median Volatile Acidity content')+
+  theme(axis.text=element_text(size=10),
+        plot.title=element_text(size=12,face="bold"))+
   xlab('Quality')+
   ylab('Volatile Acidity (g/dm^3)')
 grid.arrange(g1,g2,ncol=2)
 ```
 
 ### Description Three
+The left side plot above is scattered plot of the quality rating and the volatile acidity of the wines. We see there is a weak negative correlation between the two attributes. The weak linear trend is shown using the blue line in the plot. The right side plot above shows the median volatile acidity amount in wines at each quality rating. Again this plot shows there is some relationship between the quality and the volatile acidity.
+
 
 ------
 
 # Reflection
+The wine quality rating dataset has data for 1599 red wines. The dataset provides 11 objective measures for each wine and one subjective rating. I explored each of the 11 objective measures and analysed the relationships of these objective measures with the subjective ratings. Finally, based on the exploratory analysis I created five linear models to predict the quality of a wine based on the objective measures.
+
+Based on the description of the objective measures provided, I suspected that volatile acidity, residual sugar, alcohol content, pH and total sulphur dioxide would be strong predictors of subjective quality ratings. However, the scatterplots of the objective measures with the quality ratings revealed no strong relationships. The quality rating had the best correlation of 0.48 with alcohol content and the second best correlation of -0.39 with volatile acidity. Next, I hoped that together these objective measures might be a good predictor of quality. Hence I created five linear models with different combinations of the objective measure. The best model (m5) with five objective measures could only account for 34% of the variance.
+
+Limitations: I suspect that the linear model is not able to explain much of the variance because either the dataset is missing some other important objective measures or there are some complex non-linear relationships between the given objective measures and the quality ratings which is not visible in the scatterplots. Scatterplots can only show second order relationships, but I suspect that the given dataset has higher order relationships. These higher order relationships can be explored using much more sophisticated machine learning tools such as SVM, or neural networks.
+
+Also, most of the wines in the dataset have average ratings between 4 and 7. The data set has no inferior wines with a rating less than 3 and no excellent wines with a rating greater than 8. I think if the data were provided with balanced classes of wines then the linear model would have been much better.
