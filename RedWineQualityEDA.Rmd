@@ -318,7 +318,7 @@ The distribution of quality ratings of red wines. This distribution is fairly no
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
 g1<-ggplot(data = wqr,aes(alcohol,quality))+
-  geom_jitter()+
+  geom_jitter(alpha=0.25)+
   geom_smooth(method = 'lm')+
   ggtitle('Quality Vs. Alcohol')+
   ylab('Quality')+
@@ -342,7 +342,7 @@ The left side plot above is scattered plot of the quality rating and the alcohol
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
 g1<-ggplot(data = wqr,aes(volatile.acidity,quality))+
-  geom_jitter()+
+  geom_jitter(alpha=0.25)+
   geom_smooth(method = 'lm')+
   ggtitle('Quality Vs. Volatile Acidity')+
   ylab('Quality')+
