@@ -1,5 +1,15 @@
+---
+output: 
+  html_document: 
+    fig_height: 8
+    fig_width: 10
+---
 Wine Quality Exploration by Kedarnath Vilankar
 ========================================================
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using
@@ -16,7 +26,7 @@ library(gridExtra)
 ```{r echo=FALSE, Load_the_Data}
 # Load the Data
 wqr<-read.csv('wineQualityReds.csv')
-wqr<-wqr[,2:ncol(wqr)]
+wqr <- subset(wqr, select = -c(X))
 c(nrow(wqr), ncol(wqr))
 summary(wqr)
 ```
@@ -43,14 +53,19 @@ summary(wqr$citric.acid)
 Fixed.acidity and volatile.acidity have roughly normal distributions. The amount of volatile.acidity is very low with a mean of 0.53 g/dm^3. The citric acid is also found in small quantities in red wines with an average of 0.27 g/dm^3.
 
 ```{r echo=FALSE}
-ggplot(data=wqr,aes(x=residual.sugar))+
+g1<-ggplot(data=wqr,aes(x=residual.sugar))+
   geom_histogram(bins=50)
+
+g2<-ggplot(data=wqr,aes(x=residual.sugar))+
+  geom_histogram(bins=50)+
+  coord_cartesian(xlim = c(min(wqr$residual.sugar),  quantile(wqr$residual.sugar,0.90)))
+grid.arrange(g1,g2,ncol=2)
 
 summary(wqr$residual.sugar)
 
 nrow(subset(wqr,residual.sugar<1))
 ```
-The amount of residual sugar is low with a mean of 2.5 g/litre. According to dataset description, wine with more than 45 g/litre of residual sugar is considered a sweet wine. However, in the given dataset the maximum residual sugar is 15.5 g/litre. The description also notes that wine less than 1 g/litre residual sugar is rare. In the given dataset there are two wines with less than 1 g/litre residual sugar. I personally like sweet wines. I am curious if it has any relationship with quality of wine.
+The amount of residual sugar is low with a mean of 2.5 g/litre. The distribution if highly skewed to the right. To see the proper distribution of the amount of residual sugar in wines, we put a limit on the x-axis to show maximum amount at 90% quartile (Please refer to above the right-hand side plot). According to dataset description, wine with more than 45 g/litre of residual sugar is considered a sweet wine. However, in the given dataset the maximum residual sugar is 15.5 g/litre. The description also notes that wine less than 1 g/litre residual sugar is rare. In the given dataset there are two wines with less than 1 g/litre residual sugar. I personally like sweet wines. I am curious if it has any relationship with quality of wine.
 
 ```{r echo=FALSE}
 g1<-ggplot(data=wqr,aes(x=chlorides))+
@@ -58,7 +73,7 @@ g1<-ggplot(data=wqr,aes(x=chlorides))+
 
 g2<-ggplot(data=wqr,aes(x=chlorides))+
   geom_histogram(bins=100)+
-  coord_cartesian(xlim = c(0.012,quantile(wqr$chlorides,0.95)))
+  coord_cartesian(xlim = c(0.012,quantile(wqr$chlorides,0.90)))
 
 grid.arrange(g1,g2,ncol=2)
 
@@ -110,7 +125,7 @@ summary(wqr$alcohol)
 The mean percent of alcohol content is 10.42%. 75% of wines have alcohol content less than 11.1%. It would be interesting to see if Alcohol content has any correlation with the quality of wine.
 
 ```{r echo=FALSE}
-ggplot(data=wqr,aes(x=quality))+
+ggplot(data=wqr,aes(x=as.factor(quality)))+
   geom_bar()
 summary(wqr$quality)
 table(wqr$quality)
@@ -142,23 +157,25 @@ I found the distribution of Chlorides as unusual. It has a normal distribution, 
 # Bivariate Plots Section
 ```{r echo=FALSE, Bivariate_Plots}
 library(GGally)
+library(corrplot)
 ```
-```{r echo=FALSE}
-ggpairs(wqr, 
-  lower = list(continuous = wrap("points", shape = I('.'))), 
-  upper = list(combo = wrap("box", outlier.shape = I('.'))))
+
+```{r}
+r<-cor(wqr)
+corrplot(r, method="number", type="lower", number.font=1, tl.cex = 0.5)
 ```
 
 From the above plots, we do not see that Quality has strong correlations with any of the other attributes. The quality rating has a best positive correlation of 0.48 with alcohol content and best negative correlation of -0.39 with volatile.acidity. Let's take a close look at these relationships.
 
 ```{r echo=FALSE}
-ggplot(data = wqr,aes(alcohol,quality))+
-  geom_point()
+ggplot(data = wqr,aes(factor(quality),alcohol))+
+  geom_boxplot()
 ```
+The above plot shows boxplot of alcohol content at each quality rating. It seems that higher rated wines have high alcohol content.
 
 ```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(alcohol,quality))+
-  geom_jitter()+
+  geom_jitter(alpha=0.25)+
   geom_smooth(method = 'lm')
   
 g2<-ggplot(data = wqr,aes(quality,alcohol))+
@@ -170,12 +187,15 @@ grid.arrange(g1,g2,ncol=2)
 And indeed the scatter plot shows a weak positive correlation between the quality and the alcohol content.
 
 ```{r echo=FALSE}
-ggplot(data = wqr,aes(volatile.acidity,quality))+
-  geom_point()
+ggplot(data = wqr,aes(factor(quality),volatile.acidity))+
+  geom_boxplot()
 ```
+
+The above boxplot shows the amount of volatile acidity at each quality rating. It seems that higher rated wines have low volatile acidity.
+
 ```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(volatile.acidity,quality))+
-  geom_jitter()+
+  geom_jitter(alpha=0.25)+
   geom_smooth(method = 'lm')
 g2<-ggplot(data = wqr,aes(quality,volatile.acidity))+
   geom_line(stat = 'summary', fun.y=median,size=1)
@@ -186,7 +206,7 @@ This plot indicates that as the content of volatile acidity increases the qualit
 
 ```{r echo=FALSE}
 g1<-ggplot(data = wqr,aes(residual.sugar,quality))+
-  geom_jitter()+
+  geom_jitter(alpha=0.25)+
   geom_smooth(method = 'lm')
 
 g2<-ggplot(data = wqr,aes(quality,residual.sugar))+
@@ -236,9 +256,9 @@ The strongest relationship (correlation=-0.68) was between free acidity and pH v
 library(RColorBrewer)
 theme_set(theme_classic(20))
 ggplot(data = wqr,aes(alcohol,volatile.acidity))+
-  geom_jitter(aes(color=factor(quality)))+
+  geom_jitter(alpha=0.8, aes(color=factor(quality)))+
   geom_smooth(method = 'lm')+
-  scale_color_brewer(type = 'qual')
+  scale_color_brewer(type = 'qual',palette = 'Set1')
 ```
 
 This plot clearly shows that wines with low alcohol content and high volatile acidity are rated low (shown in green points).
@@ -246,9 +266,10 @@ This plot clearly shows that wines with low alcohol content and high volatile ac
 ```{r echo=FALSE}
 theme_set(theme_classic(20))
 ggplot(data = wqr,aes(citric.acid,residual.sugar))+
-  geom_jitter(aes(color=factor(quality)),alpha=0.5)+
+  geom_jitter(aes(color=factor(quality)),alpha=0.85)+
   facet_wrap(~factor(quality))+
-  scale_color_brewer(type = 'qual')
+  scale_color_brewer(type = 'qual', palette = 'Set1')+
+   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
 In this plot also we do not see any strong combined effect of residual.sugar and citric.acid in the quality ratings.
@@ -284,10 +305,11 @@ Yes, I made five linear models to predict the quality ratings. However, the the 
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-ggplot(data=wqr,aes(x=quality))+
+ggplot(data=wqr,aes(x=as.factor(quality)))+
   geom_bar()+
+  xlab('Quality')+
   ylab('Number of red wines')+
-  ggtitle('Quyality ratings of wine')
+  ggtitle('Quality ratings of wine')
 ```
 
 ### Description One
