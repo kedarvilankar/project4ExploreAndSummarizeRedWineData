@@ -134,6 +134,8 @@ I think pH and total sulphur dioxide might also influence the subjective quality
 I did not make any new variable. As all the variables were on the continuous scale and most of them were normally distributed. If any of the variables had uniform distribution, I would have made that variable into a categorical variable using the cut function. However, for the given dataset I did not feel any need of it.
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+The dataset included a column 'X' which represented row number. I removed that column from the dataset as that was not relevant or useful for the analysis.
+
 I found the distribution of Chlorides as unusual. It has a normal distribution, but with a very long tail. To make the plot look tidy, I limited x coordinate to have a max value of 95% quartile of chloride quantity. Similarly, the distribution of free sulphur dioxide and total sulphur dioxide seemed skewed with long tails. I transformed x using log10 transformation. The resulting plot looks more normal now.
 
 
@@ -347,6 +349,8 @@ The wine quality rating dataset has data for 1599 red wines. The dataset provide
 
 Based on the description of the objective measures provided, I suspected that volatile acidity, residual sugar, alcohol content, pH and total sulphur dioxide would be strong predictors of subjective quality ratings. However, the scatterplots of the objective measures with the quality ratings revealed no strong relationships. The quality rating had the best correlation of 0.48 with alcohol content and the second best correlation of -0.39 with volatile acidity. Next, I hoped that together these objective measures might be a good predictor of quality. Hence I created five linear models with different combinations of the objective measure. The best model (m5) with five objective measures could only account for 34% of the variance.
 
-Limitations: I suspect that the linear model is not able to explain much of the variance because either the dataset is missing some other important objective measures or there are some complex non-linear relationships between the given objective measures and the quality ratings which is not visible in the scatterplots. Scatterplots can only show second order relationships, but I suspect that the given dataset has higher order relationships. These higher order relationships can be explored using much more sophisticated machine learning tools such as SVM, or neural networks.
+#Limitations and future improvements
+
+I suspect that the linear model is not able to explain much of the variance because either the dataset is missing some other important objective measures or there are some complex non-linear relationships between the given objective measures and the quality ratings which is not visible in the scatterplots. Scatterplots can only show second order relationships, but I suspect that the given dataset has higher order relationships. These higher order relationships can be explored using much more sophisticated machine learning tools such as SVM, or neural networks.
 
 Also, most of the wines in the dataset have average ratings between 4 and 7. The data set has no inferior wines with a rating less than 3 and no excellent wines with a rating greater than 8. I think if the data were provided with balanced classes of wines then the linear model would have been much better.
